@@ -24,7 +24,8 @@ print("-" * 40)
 # API: https://jsonplaceholder.typicode.com/users/5
 # Store the user's name in the variable below
 
-user_name = None  # Replace None with your code
+response = requests.get("https://jsonplaceholder.typicode.com/users/5")
+user_name = response.json()['name']
 
 # --- Check ---
 if user_name == "Chelsey Dietrich":
@@ -46,8 +47,14 @@ print("-" * 40)
 # API: https://jsonplaceholder.typicode.com/todos?userId=1
 # Store the count in the variable below
 
-todo_count = None  # Replace None with your code
+# response = requests.get("https://jsonplaceholder.typicode.com/todos?userId=1") Manual Way
+response = requests.get("https://jsonplaceholder.typicode.com/todos", params={"userId":1})
+todo_count = len(response.json())
+# Using params= is better because:
 
+# Automatically handles special characters (spaces, symbols)
+# Easier to read when you have multiple parameters
+# Less chance of typos in the URL
 # --- Check ---
 if todo_count == 20:
     print(f"  PASS — Count: {todo_count}")
@@ -69,7 +76,18 @@ print("-" * 40)
 # Send JSON with: title="My Post", body="Hello API!", userId=1
 # Store the status code in the variable below
 
-status_code = None  # Replace None with your code
+new_post = {
+    "title": "My Post",
+    "body": "Hello API",
+    "userId": 1,
+}
+
+response = requests.post(
+    "https://jsonplaceholder.typicode.com/posts",
+    json=new_post
+    )
+ 
+status_code = response.status_code
 
 # --- Check ---
 if status_code == 201:
@@ -92,7 +110,38 @@ print("-" * 40)
 # The response has this structure: {"data": [{"attributes": {"body": "the fact..."}}]}
 # Store the fact text in the variable below
 
-dog_fact = None  # Replace None with your code
+# Step 1: Make a GET request to the dog facts API
+response = requests.get("https://dogapi.dog/api/v2/facts")
+
+# Step 2: Navigate through the nested response to get the fact text
+# HOW response.json()['data'][0]['attributes']['body'] WORKS:
+#
+# Think of it like opening boxes inside boxes — each step peels away one layer:
+#
+#   response.json()          → the WHOLE response as a Python dict:
+#   {
+#       "data": [                        ← 'data' is a LIST (notice the [ ])
+#           {                            ← first item in the list (index 0)
+#               "attributes": {          ← 'attributes' is a dict inside
+#                   "body": "Dogs have three eyelids..."   ← the actual fact!
+#               }
+#           }
+#       ]
+#   }
+#
+#   ['data']          → gets the list:       [{"attributes": {"body": "..."}}]
+#   [0]               → gets first item:      {"attributes": {"body": "..."}}
+#   ['attributes']    → gets inner dict:      {"body": "Dogs have three eyelids..."}
+#   ['body']          → gets the fact string: "Dogs have three eyelids..."
+#
+# WHY IS IT SO NESTED?
+# Many APIs wrap their data in layers for consistency:
+#   - "data" holds the main content (could be a list of many items)
+#   - [0] picks one item from that list
+#   - "attributes" groups the item's properties
+#   - "body" is the specific field we want
+# It's like: Folder → File List → First File → Contents → The Text
+dog_fact = response.json()['data'][0]['attributes']['body']
 
 # --- Check ---
 if dog_fact and isinstance(dog_fact, str) and len(dog_fact) > 10:
@@ -115,7 +164,17 @@ print("-" * 40)
 # If the status code is 404, set error_handled to True
 # Otherwise set it to False
 
-error_handled = None  # Replace None with your code
+response = requests.get("https://jsonplaceholder.typicode.com/posts/99999")
+
+error_handled = response.status_code == 404
+
+# Alternative (try/except):
+# try:
+#     response = requests.get("https://jsonplaceholder.typicode.com/posts/99999")
+#     response.raise_for_status()
+#     error_handled = True
+# except requests.exceptions.HTTPError:
+#     error_handled = False
 
 # --- Check ---
 if error_handled is True:

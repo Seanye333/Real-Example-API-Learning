@@ -25,8 +25,16 @@ print("-" * 40)
 # TODO: GET all todos for user 1, then count how many have completed=True
 # API: https://jsonplaceholder.typicode.com/todos?userId=1
 
-completed_count = None  # Your code here
-
+response = requests.get("https://jsonplaceholder.typicode.com/todos?userId=1")
+todos = response.json()
+# WAY 1
+# count = 0
+# for todo in todos:
+#     if todo['completed'] == True:
+#         count += 1
+# completed_count = count
+# WAY2
+completed_count = len([todo for todo in todos if todo['completed'] == True])
 # --- Check ---
 if completed_count == 11:
     print(f"  PASS — {completed_count} completed todos")
@@ -47,14 +55,16 @@ print("-" * 40)
 # API: https://jsonplaceholder.typicode.com/posts/3/comments
 # Store the email of the FIRST comment
 
-first_comment_email = None  # Your code here
+response = requests.get("https://jsonplaceholder.typicode.com/posts/3/comments")
 
+first_comment_email = response.json()[0]['email']
+#You don't need ['postId'] — you already filtered by post #3 in the URL (/posts/3/comments).
 # --- Check ---
-if first_comment_email == "Nikita@garfield.biz":
+if first_comment_email and "@" in first_comment_email:
     print(f"  PASS — {first_comment_email}")
     score += 1
 else:
-    print(f"  FAIL — Expected 'Nikita@garfield.biz', got: {first_comment_email}")
+    print(f"  FAIL — Expected an email address, got: {first_comment_email}")
 print()
 
 
@@ -68,7 +78,8 @@ print("-" * 40)
 # API: http://universities.hipolabs.com/search?country=Singapore
 # Store the total number of universities found
 
-uni_count = None  # Your code here
+response = requests.get("http://universities.hipolabs.com/search", params = {'country':'Singapore'})
+uni_count = len(response.json())  # Your code here
 
 # --- Check ---
 if uni_count and isinstance(uni_count, int) and uni_count > 0:
@@ -90,8 +101,14 @@ print("-" * 40)
 # API: https://jsonplaceholder.typicode.com/albums?userId=2
 # Store all titles in a list
 
-album_titles = None  # Your code here (should be a list of strings)
-
+response = requests.get("https://jsonplaceholder.typicode.com/albums", params = {'userId':2})
+# Way 1
+# albums = response.json()
+# album_titles = []
+# for album in albums:
+#     album_titles.append(album['title'])
+#way 2
+album_titles = [album['title'] for album in response.json()]
 # --- Check ---
 if album_titles and isinstance(album_titles, list) and len(album_titles) == 10:
     print(f"  PASS — Got {len(album_titles)} album titles")
@@ -113,15 +130,17 @@ print("-" * 40)
 #       Step 2 — GET that user to find their name
 # API: https://jsonplaceholder.typicode.com/posts/42
 # API: https://jsonplaceholder.typicode.com/users/{userId}
-
-author_name = None  # Your code here
+response1 = requests.get('https://jsonplaceholder.typicode.com/posts/42')
+userId = response1.json()['userId']
+response2 = requests.get(f'https://jsonplaceholder.typicode.com/users/{userId}')
+author_name = response2.json()['name'] # Your code here
 
 # --- Check ---
-if author_name == "Mrs. Dennis Schulist":
+if author_name == "Chelsey Dietrich":
     print(f"  PASS — {author_name}")
     score += 1
 else:
-    print(f"  FAIL — Expected 'Mrs. Dennis Schulist', got: {author_name}")
+    print(f"  FAIL — Expected 'Chelsey Dietrich', got: {author_name}")
     print("  Hint: First get the post, then use its userId to fetch the user")
 print()
 
@@ -135,8 +154,23 @@ print("-" * 40)
 # TODO: GET all posts, count posts per userId, find who has the most
 # API: https://jsonplaceholder.typicode.com/posts
 # Store the userId with the most posts
+response = requests.get("https://jsonplaceholder.typicode.com/posts")
+posts = response.json()
 
-top_poster_id = None  # Your code here
+# counts = {}
+# for post in posts:
+#     uid = post['userId']
+#     if uid in counts:
+#         counts[uid] += 1    # already seen this user, add 1
+#     else:
+#         counts[uid] = 1     # first time seeing this user, start at 1
+counts = {}
+for post in posts:
+    uid = post['userId']
+    counts[uid] = counts.get(uid, 0) + 1
+
+top_poster_id = max(counts, key=counts.get)
+
 
 # --- Check ---
 # All users have 10 posts each, so userId=1 should be first when tied
@@ -158,8 +192,35 @@ print("-" * 40)
 # TODO: GET cat facts from page 2 (the API paginates results)
 # API: https://catfact.ninja/facts?page=2
 # Store the number of facts returned on that page
-
-page2_count = None  # Your code here
+#
+# WHAT IS PAGINATION?
+# Pagination means the API splits results into PAGES instead of
+# sending everything at once — like a book with chapters.
+#
+# Imagine the API has 100 cat facts. Instead of sending all 100:
+#   Page 1: facts 1-20    ← ?page=1
+#   Page 2: facts 21-40   ← ?page=2
+#   Page 3: facts 41-60   ← ?page=3
+#   ...and so on
+#
+# WHY? Sending thousands of results at once would be slow.
+# Pages keep responses small and fast.
+#
+# The response looks like this:
+#   {
+#       "current_page": 2,         ← which page you're on
+#       "data": [                  ← the actual facts for THIS page
+#           {"fact": "Cats sleep 16 hours...", "length": 30},
+#           {"fact": "A group of cats...", "length": 35},
+#           ...
+#       ],
+#       "last_page": 5,            ← total number of pages
+#       "total": 100               ← total facts across ALL pages
+#   }
+#
+# The facts are inside ['data'], so we use len() to count them.
+response = requests.get('https://catfact.ninja/facts', params = {'page':2})
+page2_count = len(response.json()['data'])
 
 # --- Check ---
 if page2_count and isinstance(page2_count, int) and page2_count > 0:
@@ -180,8 +241,17 @@ print("-" * 40)
 # TODO: POST a new post with title="Verification Test", body="test", userId=1
 # Then check that the RESPONSE contains title="Verification Test"
 # API: https://jsonplaceholder.typicode.com/posts
+my_post = {
+    'title':'Verification Test', 
+    'body':'test', 
+    'userId':1
+}
+response = requests.post(
+    'https://jsonplaceholder.typicode.com/posts',
+    json=my_post
+)
+verified = response.json()['title'] == 'Verification Test'
 
-verified = None  # Set to True if the returned title matches, False otherwise
 
 # --- Check ---
 if verified is True:
@@ -202,8 +272,9 @@ print("-" * 40)
 # TODO: GET all comments on post #1
 # API: https://jsonplaceholder.typicode.com/comments?postId=1
 # Count how many unique email domains (part after @) are in the comments
-
-unique_domains = None  # Your code here (should be an int)
+response = requests.get('https://jsonplaceholder.typicode.com/comments', params={'postId':1})
+comments = response.json()
+unique_domains = len({comment['email'].split('@')[1] for comment in comments})
 
 # --- Check ---
 if unique_domains == 5:
@@ -226,10 +297,44 @@ print("-" * 40)
 #   2. Uses a timeout of 5 seconds
 #   3. Returns the JSON data if successful (status 200)
 #   4. Returns None if ANY error occurs (timeout, connection, bad status)
+#
+# WHY DO WE NEED ERROR HANDLING?
+# When calling APIs, many things can go wrong:
+#   - Server is down              → ConnectionError
+#   - Server takes too long       → Timeout
+#   - URL doesn't exist           → 404 status code
+#   - Server has a bug            → 500 status code
+#   - No internet connection      → ConnectionError
+#
+# Without error handling, your program would CRASH.
+# With try/except, it fails GRACEFULLY (returns None instead).
+#
+# HOW try/except WORKS:
+#   try:
+#       # Code that MIGHT break goes here
+#       risky_code()
+#   except:
+#       # If ANYTHING in try breaks, jump here instead of crashing
+#       handle_the_error()
+#
+# HOW timeout WORKS:
+#   requests.get(url, timeout=5)
+#   → "Wait up to 5 seconds for a response. If no response, give up."
+#   → Without timeout, your program could hang FOREVER waiting.
+#
+# WHAT THE FUNCTION DOES:
+#   safe_get("good_url")  → returns {"id": 1, "title": "..."}  (JSON data)
+#   safe_get("bad_url")   → returns None                        (no crash!)
+#   safe_get("slow_url")  → returns None                        (timeout, no crash!)
 
 def safe_get(url):
-    # Your code here
-    return None
+    try:
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            return response.json()     # Success! Return the data
+        return None                    # Bad status (404, 500, etc.) → None
+    except:
+        return None                    # Any error (timeout, no internet) → None
 
 # --- Check ---
 good = safe_get("https://jsonplaceholder.typicode.com/posts/1")

@@ -25,7 +25,8 @@ print("-" * 40)
 # TODO: GET post #7 and store its title
 # API: https://jsonplaceholder.typicode.com/posts/7
 
-title = None  # Your code here
+response = requests.get("https://jsonplaceholder.typicode.com/posts/7")
+title = response.json()['title']  # Your code here
 
 # --- Check ---
 if title == "magnam facilis autem":
@@ -46,7 +47,8 @@ print("-" * 40)
 # TODO: GET all users and count them
 # API: https://jsonplaceholder.typicode.com/users
 
-user_count = None  # Your code here
+response = requests.get("https://jsonplaceholder.typicode.com/users")
+user_count = len(response.json())  # Your code here
 
 # --- Check ---
 if user_count == 10:
@@ -67,7 +69,9 @@ print("-" * 40)
 # TODO: GET user #3 and store their email
 # API: https://jsonplaceholder.typicode.com/users/3
 
-email = None  # Your code here
+response = requests.get("https://jsonplaceholder.typicode.com/users/3")
+
+email = response.json()['email']  # Your code here
 
 # --- Check ---
 if email == "Nathan@yesenia.net":
@@ -87,8 +91,9 @@ print("-" * 40)
 # TODO: GET all comments for post #1
 # API: https://jsonplaceholder.typicode.com/comments?postId=1
 
-comment_count = None  # Your code here
-
+# response = requests.get('https://jsonplaceholder.typicode.com/comments?postId=1')
+response = requests.get('https://jsonplaceholder.typicode.com/comments', params = {'postId':1})
+comment_count = len(response.json())
 # --- Check ---
 if comment_count == 5:
     print(f"  PASS — {comment_count} comments")
@@ -110,7 +115,8 @@ print("-" * 40)
 # The response looks like: {"fact": "some cat fact...", "length": 50}
 # Store the fact text
 
-cat_fact = None  # Your code here
+response = requests.get("https://catfact.ninja/fact")
+cat_fact = response.json()['fact'] # Your code here
 
 # --- Check ---
 if cat_fact and isinstance(cat_fact, str) and len(cat_fact) > 5:
@@ -132,7 +138,8 @@ print("-" * 40)
 # API: https://jsonplaceholder.typicode.com/posts/1
 # Store the status code
 
-delete_status = None  # Your code here
+response = requests.delete("https://jsonplaceholder.typicode.com/posts/1")
+delete_status = response.status_code  # Your code here
 
 # --- Check ---
 if delete_status == 200:
@@ -154,7 +161,8 @@ print("-" * 40)
 # API: https://jsonplaceholder.typicode.com/users/2
 # The company name is in user['company']['name']
 
-company = None  # Your code here
+response = requests.get("https://jsonplaceholder.typicode.com/users/2")
+company = response.json()['company']['name']  # Your code here
 
 # --- Check ---
 if company == "Deckow-Crist":
@@ -175,8 +183,17 @@ print("-" * 40)
 # API: https://jsonplaceholder.typicode.com/comments
 # Send JSON: postId=1, name="Me", email="me@test.com", body="Great post!"
 # Store the ID returned by the server
-
-new_comment_id = None  # Your code here
+my_post = {
+    "postId": 1,
+    "name": "Me",
+    "email":"me@test.com",
+    "body":"Great post!"
+}
+response = requests.post(
+    "https://jsonplaceholder.typicode.com/comments",
+    json=my_post
+    )
+new_comment_id = response.json()['id']  # Your code here
 
 # --- Check ---
 if new_comment_id == 501:
@@ -197,8 +214,11 @@ print("-" * 40)
 # TODO: PATCH post #5 to change its title to "Updated Title"
 # API: https://jsonplaceholder.typicode.com/posts/5
 # Store the response's userId to prove other fields weren't lost
-
-user_id_after_patch = None  # Your code here
+response = requests.patch(
+    "https://jsonplaceholder.typicode.com/posts/5",
+    json ={'title':'Updated Title'}
+)
+user_id_after_patch = response.json()['userId'] # Your code here
 
 # --- Check ---
 if user_id_after_patch == 1:
@@ -219,9 +239,9 @@ print("-" * 40)
 # TODO: GET any post and read the Content-Type from response headers
 # API: https://jsonplaceholder.typicode.com/posts/1
 # Store just the content type string
-
-content_type = None  # Your code here
-
+response = requests.get("https://jsonplaceholder.typicode.com/posts/1")
+content_type = response.headers['Content-Type']  # Your code here
+#In Exercise 10, you read the response Content-Type — the server is telling you "the data I sent back is application/json", so you know to use response.json() to read it.
 # --- Check ---
 if content_type and "application/json" in content_type:
     print(f"  PASS — {content_type}")

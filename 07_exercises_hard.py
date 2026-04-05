@@ -7,7 +7,7 @@ These involve sessions, retries, building helpers, and combining APIs.
 APIs used (all free, no key needed):
 - JSONPlaceholder: https://jsonplaceholder.typicode.com
 - Cat Facts: https://catfact.ninja
-- httpstat.us: https://httpstat.us (returns specific status codes)
+- HTTPBin: https://httpbin.org (returns specific status codes)
 - Open Meteo: https://api.open-meteo.com
 """
 
@@ -204,7 +204,7 @@ print()
 print("Exercise 7: Map status codes to their meanings")
 print("-" * 40)
 
-# TODO: Use https://httpstat.us/{code} to request these status codes:
+# TODO: Use https://httpbin.org/status/{code} to request these status codes:
 #   200, 201, 301, 404, 500
 # Build a dict mapping each code to the response reason phrase
 # Example: {200: "OK", 201: "Created", ...}

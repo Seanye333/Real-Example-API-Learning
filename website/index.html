@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Python API Calls</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h2>API Learning</h2>
+            <p class="sidebar-subtitle">Python + REST APIs</p>
+        </div>
+        <ul class="nav-list">
+            <li><a href="#lesson-1" class="nav-link active" data-section="lesson-1"><span class="nav-number">01</span> GET Requests</a></li>
+            <li><a href="#lesson-2" class="nav-link" data-section="lesson-2"><span class="nav-number">02</span> POST Requests</a></li>
+            <li><a href="#lesson-3" class="nav-link" data-section="lesson-3"><span class="nav-number">03</span> PUT, PATCH & DELETE</a></li>
+            <li class="nav-divider">Exercises</li>
+            <li><a href="#lesson-4" class="nav-link" data-section="lesson-4"><span class="nav-number">04</span> Practice Challenge</a></li>
+            <li><a href="#lesson-5" class="nav-link" data-section="lesson-5"><span class="nav-number">05</span> Easy Exercises</a></li>
+            <li><a href="#lesson-6" class="nav-link" data-section="lesson-6"><span class="nav-number">06</span> Medium Exercises</a></li>
+            <li><a href="#lesson-7" class="nav-link" data-section="lesson-7"><span class="nav-number">07</span> Hard Exercises</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <p>All APIs are free.<br>No API key needed.</p>
+        </div>
+    </nav>
+
+    <!-- Mobile Header -->
+    <header id="mobile-header">
+        <button id="menu-toggle" aria-label="Toggle menu">&#9776;</button>
+        <h2>API Learning</h2>
+    </header>
+
+    <!-- Main Content -->
+    <main id="content">
+
+        <!-- LESSON 1 -->
+        <section id="lesson-1" class="lesson">
+            <div class="lesson-header">
+                <span class="lesson-badge">Lesson 01</span>
+                <h1>GET Requests</h1>
+                <p class="lesson-intro">GET requests are used to <strong>retrieve data</strong> from a server. Think of it like asking a question — you're requesting information.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>Real World Analogy</h3>
+                <p>Imagine you walk into a library and ask the librarian: <em>"Can I see the book with ID #1?"</em><br>
+                The librarian (server) finds the book and hands it to you (response). That's exactly what a GET request does.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>How It Works (Step by Step)</h3>
+                <ol>
+                    <li>Your code sends an HTTP GET request to a URL (the server's address)</li>
+                    <li>The server receives your request and processes it</li>
+                    <li>The server sends back a <strong>response</strong> containing:
+                        <ul>
+                            <li>A <strong>status code</strong> (200 = success, 404 = not found, etc.)</li>
+                            <li><strong>Headers</strong> (metadata like content type, size)</li>
+                            <li>A <strong>body</strong> (the actual data, usually JSON)</li>
+                        </ul>
+                    </li>
+                    <li>Your code reads the response and uses the data</li>
+                </ol>
+            </div>
+
+            <div class="concept-box info">
+                <h3>What is JSON?</h3>
+                <p>JSON (JavaScript Object Notation) is a text format for sending data. It looks almost identical to a Python dictionary:</p>
+                <pre><code>{"name": "John", "age": 30, "city": "New York"}</code></pre>
+                <p>APIs use JSON because it's lightweight, readable, and universal — every programming language can read it.</p>
+            </div>
+
+            <div class="concept-box info">
+                <h3>What is the <code>requests</code> library?</h3>
+                <p><code>requests</code> is a Python library that makes HTTP calls easy. Install with:</p>
+                <pre><code>pip install requests</code></pre>
+            </div>
+
+            <!-- Example 1 -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 1</span>
+                    <h2>Simple GET — Fetch a Single User</h2>
+                </div>
+                <pre><code><span class="kw">import</span> requests
+
+<span class="comment"># Send a GET request to fetch user #1</span>
+response = requests.get(<span class="str">"https://jsonplaceholder.typicode.com/users/1"</span>)
+
+<span class="comment"># Check if it worked</span>
+<span class="kw">print</span>(response.status_code)  <span class="comment"># 200 = success</span>
+
+<span class="comment"># Convert JSON response into a Python dictionary</span>
+user = response.json()
+
+<span class="kw">print</span>(user[<span class="str">'name'</span>])              <span class="comment"># "Leanne Graham"</span>
+<span class="kw">print</span>(user[<span class="str">'email'</span>])             <span class="comment"># "Sincere@april.biz"</span>
+<span class="kw">print</span>(user[<span class="str">'address'</span>][<span class="str">'city'</span>])  <span class="comment"># "Gwenborough" (nested data!)</span></code></pre>
+
+                <div class="concept-box tip">
+                    <h3>The Response Object</h3>
+                    <table class="info-table">
+                        <tr><td><code>response.status_code</code></td><td>HTTP status code (200, 404, 500...)</td></tr>
+                        <tr><td><code>response.json()</code></td><td>Body parsed as a Python dict/list</td></tr>
+                        <tr><td><code>response.text</code></td><td>Body as a raw string</td></tr>
+                        <tr><td><code>response.headers</code></td><td>Metadata about the response</td></tr>
+                        <tr><td><code>response.url</code></td><td>The URL that was actually requested</td></tr>
+                        <tr><td><code>response.ok</code></td><td>True if status code is 200-299</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 2</span>
+                    <h2>GET a List — Fetch All Posts</h2>
+                </div>
+                <pre><code><span class="comment"># When you request /posts (no ID), the API returns ALL posts as a list</span>
+response = requests.get(<span class="str">"https://jsonplaceholder.typicode.com/posts"</span>)
+posts = response.json()  <span class="comment"># Returns a LIST of dictionaries</span>
+
+<span class="kw">print</span>(<span class="str">f"Total posts: </span>{len(posts)}<span class="str">"</span>)  <span class="comment"># 100</span>
+
+<span class="comment"># Loop through the first 3 posts</span>
+<span class="kw">for</span> post <span class="kw">in</span> posts[:3]:  <span class="comment"># [:3] = first 3 items (Python slicing)</span>
+    <span class="kw">print</span>(<span class="str">f"  Post #</span>{post[<span class="str">'id'</span>]}<span class="str">: </span>{post[<span class="str">'title'</span>][:50]}<span class="str">..."</span>)</code></pre>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 3</span>
+                    <h2>GET with Query Parameters — Filter Results</h2>
+                </div>
+                <pre><code><span class="comment"># Query parameters filter results. They go after ? in the URL:</span>
+<span class="comment"># https://jsonplaceholder.typicode.com/posts?userId=1</span>
+<span class="comment">#                                            ^^^^^^^^ query param</span>
+
+<span class="comment"># Better way: use a params dict — requests builds the URL for you</span>
+params = {<span class="str">"userId"</span>: 1}
+response = requests.get(
+    <span class="str">"https://jsonplaceholder.typicode.com/posts"</span>,
+    params=params,
+)
+filtered = response.json()
+
+<span class="kw">print</span>(<span class="str">f"Posts by user 1: </span>{len(filtered)}<span class="str">"</span>)  <span class="comment"># 10</span>
+<span class="kw">print</span>(response.url)  <span class="comment"># See the full URL that was sent</span></code></pre>
+            </div>
+
+            <!-- Example 4 -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 4</span>
+                    <h2>Inspecting Response Headers</h2>
+                </div>
+                <div class="concept-box">
+                    <h3>What Are Headers?</h3>
+                    <p>Headers are metadata sent alongside the response — like the label on a package. The package contents = the body (your data). The label = headers (info <em>about</em> the data).</p>
+                </div>
+                <pre><code>response = requests.get(<span class="str">"https://jsonplaceholder.typicode.com/posts/1"</span>)
+
+<span class="kw">print</span>(response.headers[<span class="str">'Content-Type'</span>])  <span class="comment"># application/json; charset=utf-8</span>
+<span class="kw">print</span>(len(response.content))              <span class="comment"># Response size in bytes</span>
+<span class="kw">print</span>(response.encoding)                  <span class="comment"># utf-8</span></code></pre>
+            </div>
+
+            <!-- Example 5 -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 5</span>
+                    <h2>Handling Errors Gracefully</h2>
+                </div>
+                <div class="concept-box warning">
+                    <h3>Why Handle Errors?</h3>
+                    <p>APIs can fail: resource doesn't exist (404), server is down (500), you're not authorized (401). Good code always handles these instead of crashing!</p>
+                </div>
+                <pre><code><span class="comment"># Method 1: Check status code manually</span>
+response = requests.get(<span class="str">"https://jsonplaceholder.typicode.com/posts/99999"</span>)
+
+<span class="kw">if</span> response.status_code == 200:
+    <span class="kw">print</span>(<span class="str">"Success!"</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="str">f"Error! Status: </span>{response.status_code}<span class="str">"</span>)
+
+
+<span class="comment"># Method 2: Use try/except with raise_for_status()</span>
+<span class="kw">try</span>:
+    response = requests.get(<span class="str">"https://jsonplaceholder.typicode.com/users/99999"</span>)
+    response.raise_for_status()  <span class="comment"># Throws exception if 4xx or 5xx</span>
+<span class="kw">except</span> requests.exceptions.HTTPError <span class="kw">as</span> e:
+    <span class="kw">print</span>(<span class="str">f"HTTP error: </span>{e}<span class="str">"</span>)
+<span class="kw">except</span> requests.exceptions.ConnectionError:
+    <span class="kw">print</span>(<span class="str">"Can't reach the server!"</span>)
+<span class="kw">except</span> requests.exceptions.Timeout:
+    <span class="kw">print</span>(<span class="str">"Server took too long!"</span>)</code></pre>
+            </div>
+
+            <div class="try-it-box">
+                <h3>Try It Live</h3>
+                <p>Click "Send Request" to make a real GET request right here in the browser!</p>
+                <div class="try-it-controls">
+                    <select id="get-url-select">
+                        <option value="https://jsonplaceholder.typicode.com/users/1">GET /users/1</option>
+                        <option value="https://jsonplaceholder.typicode.com/posts/1">GET /posts/1</option>
+                        <option value="https://jsonplaceholder.typicode.com/posts?userId=1">GET /posts?userId=1</option>
+                        <option value="https://jsonplaceholder.typicode.com/todos/1">GET /todos/1</option>
+                    </select>
+                    <button class="btn" onclick="tryGetRequest()">Send Request</button>
+                </div>
+                <pre class="try-it-output" id="get-output">Response will appear here...</pre>
+            </div>
+        </section>
+
+        <!-- LESSON 2 -->
+        <section id="lesson-2" class="lesson">
+            <div class="lesson-header">
+                <span class="lesson-badge">Lesson 02</span>
+                <h1>POST Requests</h1>
+                <p class="lesson-intro">POST requests are used to <strong>send/create new data</strong> on a server. Think of it like filling out a form and submitting it.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>Real World Analogy</h3>
+                <p>Imagine you're at a restaurant and fill out an order form: <em>Name: "Burger", Extras: "Cheese", Quantity: 2</em>.<br>
+                You hand the form (your data) to the waiter (server). The waiter processes it and hands you a receipt (response) with an order number (new ID).</p>
+            </div>
+
+            <div class="concept-box info">
+                <h3>GET vs POST</h3>
+                <table class="info-table">
+                    <tr><td><strong>GET</strong></td><td>"Give me data" — you send nothing, server sends data back</td></tr>
+                    <tr><td><strong>POST</strong></td><td>"Here's new data" — you send data, server creates something</td></tr>
+                </table>
+                <p style="margin-top: 0.5rem">GET is like <strong>reading</strong> a book. POST is like <strong>writing a new page</strong> in the book.</p>
+            </div>
+
+            <div class="concept-box info">
+                <h3>What is a Request Body?</h3>
+                <p>When you POST, you include a "body" — the data you're sending. Usually JSON:</p>
+                <pre><code>{"title": "My Post", "body": "Hello!", "userId": 1}</code></pre>
+            </div>
+
+            <!-- Example 1 -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 1</span>
+                    <h2>Simple POST — Create a New Post</h2>
+                </div>
+                <pre><code><span class="comment"># Prepare the data as a Python dictionary</span>
+new_post = {
+    <span class="str">"title"</span>: <span class="str">"My First API Post"</span>,
+    <span class="str">"body"</span>: <span class="str">"Learning POST requests!"</span>,
+    <span class="str">"userId"</span>: 1,
+}
+
+<span class="comment"># json= does TWO things automatically:</span>
+<span class="comment">#   1. Converts your dict to a JSON string</span>
+<span class="comment">#   2. Sets the Content-Type header to "application/json"</span>
+response = requests.post(
+    <span class="str">"https://jsonplaceholder.typicode.com/posts"</span>,
+    json=new_post,
+)
+
+<span class="kw">print</span>(response.status_code)       <span class="comment"># 201 = Created</span>
+<span class="kw">print</span>(response.json()[<span class="str">'id'</span>])      <span class="comment"># Server assigned ID: 101</span></code></pre>
+                <div class="concept-box tip">
+                    <h3>Status 201 vs 200</h3>
+                    <p><strong>200</strong> = "OK" (general success, used for GET)<br>
+                    <strong>201</strong> = "Created" (a new resource was made, used for POST)</p>
+                </div>
+            </div>
+
+            <!-- Example 2 -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 2</span>
+                    <h2>POST with Manual Headers</h2>
+                </div>
+                <pre><code><span class="kw">import</span> json
+
+headers = {
+    <span class="str">"Content-Type"</span>: <span class="str">"application/json; charset=UTF-8"</span>,
+}
+
+payload = {<span class="str">"title"</span>: <span class="str">"Manual Post"</span>, <span class="str">"body"</span>: <span class="str">"Test"</span>, <span class="str">"userId"</span>: 2}
+
+response = requests.post(
+    <span class="str">"https://jsonplaceholder.typicode.com/posts"</span>,
+    data=json.dumps(payload),  <span class="comment"># Manually convert dict to JSON string</span>
+    headers=headers,           <span class="comment"># Manually set Content-Type</span>
+)</code></pre>
+                <div class="concept-box tip">
+                    <h3>Three Ways to Send Data</h3>
+                    <table class="info-table">
+                        <tr><td><code>json=my_dict</code></td><td>Automatic JSON (preferred)</td></tr>
+                        <tr><td><code>data=json.dumps(my_dict)</code> + headers</td><td>Manual JSON (when you need control)</td></tr>
+                        <tr><td><code>data=my_dict</code></td><td>Form-encoded data (like HTML forms)</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Example 3 -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 3</span>
+                    <h2>POST Form Data</h2>
+                </div>
+                <div class="concept-box">
+                    <h3>What is Form Data?</h3>
+                    <p>When you submit a form on a website, the browser sends it as <strong>form-encoded</strong>, not JSON.</p>
+                    <p>Form-encoded: <code>title=Hello&body=World&userId=1</code><br>
+                    JSON: <code>{"title": "Hello", "body": "World", "userId": 1}</code></p>
+                    <p>Most modern APIs use JSON. Some older or file-upload APIs use form data.</p>
+                </div>
+                <pre><code>form_data = {
+    <span class="str">"title"</span>: <span class="str">"Form Post"</span>,
+    <span class="str">"body"</span>: <span class="str">"Sent as form-encoded"</span>,
+    <span class="str">"userId"</span>: 3,
+}
+
+<span class="comment"># data= WITHOUT json.dumps sends as form-encoded</span>
+response = requests.post(
+    <span class="str">"https://jsonplaceholder.typicode.com/posts"</span>,
+    data=form_data,  <span class="comment"># Form data, NOT JSON</span>
+)</code></pre>
+            </div>
+
+            <!-- Example 4 -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 4</span>
+                    <h2>Handling POST Errors</h2>
+                </div>
+                <div class="concept-box warning">
+                    <h3>Why Error Handling Matters More for POST</h3>
+                    <p>GET just reads data — if it fails, nothing bad happens.<br>
+                    POST <strong>creates</strong> data — if it fails mid-way, you might get duplicates or partial data. Always handle errors!</p>
+                </div>
+                <pre><code><span class="kw">try</span>:
+    response = requests.post(
+        <span class="str">"https://jsonplaceholder.typicode.com/posts"</span>,
+        json={<span class="str">"title"</span>: <span class="str">"Test"</span>},
+        timeout=5,  <span class="comment"># Give up after 5 seconds</span>
+    )
+    response.raise_for_status()
+    <span class="kw">print</span>(<span class="str">f"Created: </span>{response.json()[<span class="str">'id'</span>]}<span class="str">"</span>)
+<span class="kw">except</span> requests.exceptions.Timeout:
+    <span class="kw">print</span>(<span class="str">"Timed out!"</span>)
+<span class="kw">except</span> requests.exceptions.HTTPError <span class="kw">as</span> e:
+    <span class="kw">print</span>(<span class="str">f"HTTP Error: </span>{e}<span class="str">"</span>)
+<span class="kw">except</span> requests.exceptions.ConnectionError:
+    <span class="kw">print</span>(<span class="str">"Can't connect!"</span>)</code></pre>
+            </div>
+
+            <div class="try-it-box">
+                <h3>Try It Live</h3>
+                <p>Create a new post by sending a POST request!</p>
+                <div class="try-it-form">
+                    <input type="text" id="post-title" placeholder="Title" value="My Test Post">
+                    <input type="text" id="post-body" placeholder="Body" value="Hello from the browser!">
+                    <button class="btn" onclick="tryPostRequest()">Send POST</button>
+                </div>
+                <pre class="try-it-output" id="post-output">Response will appear here...</pre>
+            </div>
+        </section>
+
+        <!-- LESSON 3 -->
+        <section id="lesson-3" class="lesson">
+            <div class="lesson-header">
+                <span class="lesson-badge">Lesson 03</span>
+                <h1>PUT, PATCH & DELETE</h1>
+                <p class="lesson-intro">The remaining HTTP methods for updating and deleting resources.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>Real World Analogy</h3>
+                <p>Think of a contact in your phone: <em>Name: John, Phone: 555-1234, Email: john@email.com</em></p>
+                <ul>
+                    <li><strong>PUT</strong>: Delete the entire contact and re-enter everything from scratch. Forget the email? It's gone.</li>
+                    <li><strong>PATCH</strong>: Tap on just the phone number and change it. Name and email stay exactly as they were.</li>
+                    <li><strong>DELETE</strong>: Delete the contact entirely.</li>
+                </ul>
+            </div>
+
+            <div class="concept-box info">
+                <h3>CRUD Operations</h3>
+                <table class="info-table">
+                    <tr><td><strong>C</strong>reate</td><td>POST</td><td><code>POST /posts</code></td></tr>
+                    <tr><td><strong>R</strong>ead</td><td>GET</td><td><code>GET /posts/1</code></td></tr>
+                    <tr><td><strong>U</strong>pdate</td><td>PUT / PATCH</td><td><code>PATCH /posts/1</code></td></tr>
+                    <tr><td><strong>D</strong>elete</td><td>DELETE</td><td><code>DELETE /posts/1</code></td></tr>
+                </table>
+                <p style="margin-top: 0.5rem">The URL identifies <strong>what</strong> resource. The HTTP method identifies <strong>what action</strong>.</p>
+            </div>
+
+            <!-- Example 1: PUT -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 1</span>
+                    <h2>PUT — Full Replace</h2>
+                </div>
+                <div class="concept-box warning">
+                    <h3>Warning</h3>
+                    <p>PUT replaces <strong>everything</strong>. If you forget a field, it gets erased!</p>
+                </div>
+                <pre><code><span class="comment"># Must send ALL fields — missing ones get erased!</span>
+updated = {
+    <span class="str">"id"</span>: 1,
+    <span class="str">"title"</span>: <span class="str">"New Title"</span>,
+    <span class="str">"body"</span>: <span class="str">"New body"</span>,
+    <span class="str">"userId"</span>: 1,
+}
+
+response = requests.put(
+    <span class="str">"https://jsonplaceholder.typicode.com/posts/1"</span>,
+    json=updated,
+)
+<span class="kw">print</span>(response.status_code)  <span class="comment"># 200</span>
+<span class="kw">print</span>(response.json())       <span class="comment"># Full replaced object</span></code></pre>
+            </div>
+
+            <!-- Example 2: PATCH -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 2</span>
+                    <h2>PATCH — Partial Update</h2>
+                </div>
+                <pre><code><span class="comment"># Only send what you want to change — rest stays the same</span>
+response = requests.patch(
+    <span class="str">"https://jsonplaceholder.typicode.com/posts/1"</span>,
+    json={<span class="str">"title"</span>: <span class="str">"Only Title Changed"</span>},
+)
+
+result = response.json()
+<span class="kw">print</span>(result[<span class="str">'title'</span>])   <span class="comment"># "Only Title Changed" — updated!</span>
+<span class="kw">print</span>(result[<span class="str">'body'</span>])    <span class="comment"># Still has original body — untouched!</span>
+<span class="kw">print</span>(result[<span class="str">'userId'</span>])  <span class="comment"># Still 1 — untouched!</span></code></pre>
+            </div>
+
+            <!-- Example 3: DELETE -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 3</span>
+                    <h2>DELETE — Remove a Resource</h2>
+                </div>
+                <pre><code><span class="comment"># Just the URL — no body needed</span>
+response = requests.delete(
+    <span class="str">"https://jsonplaceholder.typicode.com/posts/1"</span>
+)
+
+<span class="kw">print</span>(response.status_code)  <span class="comment"># 200</span>
+<span class="kw">print</span>(response.json())       <span class="comment"># {} (empty — it's gone)</span></code></pre>
+                <div class="concept-box warning">
+                    <p>In real APIs, DELETE is <strong>permanent</strong>! There's usually no undo.</p>
+                </div>
+            </div>
+
+            <!-- PUT vs PATCH -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 4</span>
+                    <h2>PUT vs PATCH — Side by Side</h2>
+                </div>
+                <div class="comparison">
+                    <div class="comparison-col">
+                        <h3>PUT (Full Replace)</h3>
+                        <ul>
+                            <li>Send ALL fields</li>
+                            <li>Missing fields get erased</li>
+                            <li>Like rewriting an entire document</li>
+                            <li>Use when you have the complete object</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-col">
+                        <h3>PATCH (Partial Update)</h3>
+                        <ul>
+                            <li>Send ONLY changed fields</li>
+                            <li>Other fields stay untouched</li>
+                            <li>Like editing one paragraph</li>
+                            <li>Use when tweaking a few fields</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CRUD Cycle -->
+            <div class="example">
+                <div class="example-header">
+                    <span class="example-number">Example 5</span>
+                    <h2>Complete CRUD Cycle</h2>
+                </div>
+                <pre><code>BASE = <span class="str">"https://jsonplaceholder.typicode.com/posts"</span>
+
+<span class="comment"># 1. CREATE</span>
+r = requests.post(BASE, json={<span class="str">"title"</span>: <span class="str">"New"</span>, <span class="str">"body"</span>: <span class="str">"Hi"</span>, <span class="str">"userId"</span>: 1})
+<span class="kw">print</span>(<span class="str">f"Created ID: </span>{r.json()[<span class="str">'id'</span>]}<span class="str">"</span>)
+
+<span class="comment"># 2. READ</span>
+r = requests.get(<span class="str">f"</span>{BASE}<span class="str">/1"</span>)
+<span class="kw">print</span>(<span class="str">f"Title: </span>{r.json()[<span class="str">'title'</span>]}<span class="str">"</span>)
+
+<span class="comment"># 3. UPDATE</span>
+r = requests.patch(<span class="str">f"</span>{BASE}<span class="str">/1"</span>, json={<span class="str">"title"</span>: <span class="str">"Updated!"</span>})
+<span class="kw">print</span>(<span class="str">f"Updated: </span>{r.json()[<span class="str">'title'</span>]}<span class="str">"</span>)
+
+<span class="comment"># 4. DELETE</span>
+r = requests.delete(<span class="str">f"</span>{BASE}<span class="str">/1"</span>)
+<span class="kw">print</span>(<span class="str">f"Deleted! Status: </span>{r.status_code}<span class="str">"</span>)</code></pre>
+            </div>
+
+            <div class="concept-box info">
+                <h3>All HTTP Methods Summary</h3>
+                <table class="info-table">
+                    <tr><th>Method</th><th>CRUD</th><th>Sends Data?</th><th>Common Status</th></tr>
+                    <tr><td>GET</td><td>Read</td><td>No</td><td>200 OK</td></tr>
+                    <tr><td>POST</td><td>Create</td><td>Yes (body)</td><td>201 Created</td></tr>
+                    <tr><td>PUT</td><td>Update</td><td>Yes (full)</td><td>200 OK</td></tr>
+                    <tr><td>PATCH</td><td>Update</td><td>Yes (partial)</td><td>200 OK</td></tr>
+                    <tr><td>DELETE</td><td>Delete</td><td>No</td><td>200 or 204</td></tr>
+                </table>
+            </div>
+
+            <div class="try-it-box">
+                <h3>Try It Live — Full CRUD</h3>
+                <div class="try-it-controls">
+                    <select id="crud-method">
+                        <option value="GET">GET /posts/1</option>
+                        <option value="POST">POST /posts (create)</option>
+                        <option value="PATCH">PATCH /posts/1 (update title)</option>
+                        <option value="DELETE">DELETE /posts/1</option>
+                    </select>
+                    <button class="btn" onclick="tryCrudRequest()">Send</button>
+                </div>
+                <pre class="try-it-output" id="crud-output">Response will appear here...</pre>
+            </div>
+        </section>
+
+        <!-- LESSON 4 -->
+        <section id="lesson-4" class="lesson">
+            <div class="lesson-header">
+                <span class="lesson-badge">Practice</span>
+                <h1>04 — Practice Challenge</h1>
+                <p class="lesson-intro">5 challenges to test your understanding. Fill in the code in <code>04_practice_challenge.py</code> and run it.</p>
+            </div>
+
+            <div class="exercise-card">
+                <div class="exercise-header"><span class="difficulty easy">Challenge 1</span> Fetch user #5's name</div>
+                <p>Make a GET request to <code>/users/5</code> and get the name.</p>
+                <pre><code><span class="comment"># TODO: Store the name in user_name</span>
+user_name = <span class="comment">???</span>
+<span class="comment"># Expected: "Chelsey Dietrich"</span></code></pre>
+                <details><summary>Show Hint</summary><pre><code>user_name = requests.get(<span class="str">"https://jsonplaceholder.typicode.com/users/5"</span>).json()[<span class="str">'name'</span>]</code></pre></details>
+            </div>
+
+            <div class="exercise-card">
+                <div class="exercise-header"><span class="difficulty easy">Challenge 2</span> Count user 1's todos</div>
+                <p>Fetch all todos for <code>userId=1</code> and count them.</p>
+                <pre><code><span class="comment"># TODO: Store the count in todo_count</span>
+todo_count = <span class="comment">???</span>
+<span class="comment"># Expected: 20</span></code></pre>
+                <details><summary>Show Hint</summary><pre><code>todo_count = len(requests.get(<span class="str">"https://jsonplaceholder.typicode.com/todos"</span>, params={<span class="str">"userId"</span>: 1}).json())</code></pre></details>
+            </div>
+
+            <div class="exercise-card">
+                <div class="exercise-header"><span class="difficulty easy">Challenge 3</span> Create a post via POST</div>
+                <p>POST to <code>/posts</code> with title, body, userId. Store the status code.</p>
+                <pre><code><span class="comment"># TODO: Store the status code in status_code</span>
+status_code = <span class="comment">???</span>
+<span class="comment"># Expected: 201</span></code></pre>
+                <details><summary>Show Hint</summary><pre><code>status_code = requests.post(url, json={<span class="str">"title"</span>: <span class="str">"My Post"</span>, <span class="str">"body"</span>: <span class="str">"Hello!"</span>, <span class="str">"userId"</span>: 1}).status_code</code></pre></details>
+            </div>
+
+            <div class="exercise-card">
+                <div class="exercise-header"><span class="difficulty medium">Challenge 4</span> Fetch a dog fact</div>
+                <p>GET from <code>https://dogapi.dog/api/v2/facts</code> and extract the fact text.</p>
+                <details><summary>Show Hint</summary><pre><code>dog_fact = requests.get(url).json()[<span class="str">'data'</span>][0][<span class="str">'attributes'</span>][<span class="str">'body'</span>]</code></pre></details>
+            </div>
+
+            <div class="exercise-card">
+                <div class="exercise-header"><span class="difficulty medium">Challenge 5</span> Handle a 404</div>
+                <p>GET post #99999 (doesn't exist). Set <code>error_handled = True</code> if status is 404.</p>
+                <details><summary>Show Hint</summary><pre><code>error_handled = requests.get(url + <span class="str">"/99999"</span>).status_code == 404</code></pre></details>
+            </div>
+        </section>
+
+        <!-- LESSON 5 -->
+        <section id="lesson-5" class="lesson">
+            <div class="lesson-header">
+                <span class="lesson-badge easy-badge">Easy</span>
+                <h1>05 — Easy Exercises</h1>
+                <p class="lesson-intro">10 beginner exercises. Fill in the code in <code>05_exercises_easy.py</code>.</p>
+            </div>
+
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty easy">1</span> Get the title of post #7</div><p>GET <code>/posts/7</code> → Expected: <code>"magnam facilis autem"</code></p><details><summary>Hint</summary><code>requests.get(url).json()['title']</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty easy">2</span> Count all users</div><p>GET <code>/users</code> → Expected: <code>10</code></p><details><summary>Hint</summary><code>len(requests.get(url).json())</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty easy">3</span> Get user #3's email</div><p>GET <code>/users/3</code> → Expected: <code>"Nathan@yesenia.net"</code></p><details><summary>Hint</summary><code>requests.get(url).json()['email']</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty easy">4</span> Count comments on post #1</div><p>GET <code>/comments?postId=1</code> → Expected: <code>5</code></p><details><summary>Hint</summary><code>len(requests.get(url, params={'postId': 1}).json())</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty easy">5</span> Fetch a cat fact</div><p>GET <code>https://catfact.ninja/fact</code> → store the fact string</p><details><summary>Hint</summary><code>requests.get(url).json()['fact']</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty easy">6</span> DELETE post #1 status code</div><p>DELETE <code>/posts/1</code> → Expected: <code>200</code></p><details><summary>Hint</summary><code>requests.delete(url).status_code</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty easy">7</span> Get user #2's company</div><p>GET <code>/users/2</code> → Expected: <code>"Deckow-Crist"</code> (nested: <code>user['company']['name']</code>)</p><details><summary>Hint</summary><code>requests.get(url).json()['company']['name']</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty easy">8</span> Create a comment via POST</div><p>POST <code>/comments</code> → Expected new ID: <code>501</code></p><details><summary>Hint</summary><code>requests.post(url, json={...}).json()['id']</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty easy">9</span> PATCH post #5's title</div><p>PATCH <code>/posts/5</code> → verify <code>userId</code> is preserved (should be <code>1</code>)</p><details><summary>Hint</summary><code>requests.patch(url, json={'title': 'Updated Title'}).json()['userId']</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty easy">10</span> Read the Content-Type header</div><p>GET <code>/posts/1</code> → Expected: contains <code>"application/json"</code></p><details><summary>Hint</summary><code>response.headers['Content-Type']</code></details></div>
+        </section>
+
+        <!-- LESSON 6 -->
+        <section id="lesson-6" class="lesson">
+            <div class="lesson-header">
+                <span class="lesson-badge medium-badge">Medium</span>
+                <h1>06 — Medium Exercises</h1>
+                <p class="lesson-intro">10 intermediate exercises. Chaining requests, filtering, pagination, and more.</p>
+            </div>
+
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty medium">1</span> Count completed todos for user #1</div><p>GET <code>/todos?userId=1</code>, count where <code>completed == True</code> → Expected: <code>11</code></p><details><summary>Hint</summary><code>len([t for t in todos if t['completed']])</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty medium">2</span> Nested route for comments</div><p>GET <code>/posts/3/comments</code> → first comment's email: <code>"Nikita@garfield.biz"</code></p><details><summary>Hint</summary><code>requests.get(url).json()[0]['email']</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty medium">3</span> Search universities in Singapore</div><p>GET <code>http://universities.hipolabs.com/search?country=Singapore</code> → count results</p><details><summary>Hint</summary><code>len(requests.get(url, params={'country': 'Singapore'}).json())</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty medium">4</span> Collect album titles for user #2</div><p>GET <code>/albums?userId=2</code> → list of 10 titles</p><details><summary>Hint</summary><code>[album['title'] for album in response.json()]</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty medium">5</span> Chain two API calls</div><p>GET post #42 → find userId → GET that user's name → <code>"Mrs. Dennis Schulist"</code></p><details><summary>Hint</summary><code>Get post first, then use post['userId'] to fetch the user</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty medium">6</span> Aggregate: who posts the most?</div><p>GET <code>/posts</code>, count per userId → all have 10 each</p><details><summary>Hint</summary><code>Use a dict to count, then max()</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty medium">7</span> Pagination with cat facts</div><p>GET <code>https://catfact.ninja/facts?page=2</code> → count facts on page 2</p><details><summary>Hint</summary><code>len(response.json()['data'])</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty medium">8</span> POST and verify response</div><p>POST with <code>title="Verification Test"</code> → check response matches</p><details><summary>Hint</summary><code>response.json()['title'] == 'Verification Test'</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty medium">9</span> Extract unique email domains</div><p>GET <code>/comments?postId=1</code> → count unique domains (after @) → <code>5</code></p><details><summary>Hint</summary><code>{c['email'].split('@')[1] for c in comments}</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty medium">10</span> Build a safe_get function</div><p>Function with timeout, error handling. Returns JSON or None.</p><details><summary>Hint</summary><code>try/except with requests.get(url, timeout=5), check status_code</code></details></div>
+        </section>
+
+        <!-- LESSON 7 -->
+        <section id="lesson-7" class="lesson">
+            <div class="lesson-header">
+                <span class="lesson-badge hard-badge">Hard</span>
+                <h1>07 — Hard Exercises</h1>
+                <p class="lesson-intro">10 advanced exercises. Sessions, retries, classes, pagination, and real APIs.</p>
+            </div>
+
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty hard">1</span> Use requests.Session</div><p>Create a Session with custom User-Agent, fetch posts #1-3</p><details><summary>Hint</summary><code>session = requests.Session(); session.headers.update({...}); session.get(url)</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty hard">2</span> Implement retry logic</div><p>Write <code>get_with_retry(url, max_retries=3)</code> — retry on failure with 1s delay</p><details><summary>Hint</summary><code>Loop max_retries times, try/except, time.sleep(1)</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty hard">3</span> Build an API client class</div><p>Class with <code>get_post()</code>, <code>get_user()</code>, <code>create_post()</code> methods</p><details><summary>Hint</summary><code>Each method uses self.base_url + requests.get/post + .json()</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty hard">4</span> Paginate through all cat facts</div><p>Loop pages 1-5, collect all facts from <code>https://catfact.ninja/facts</code></p><details><summary>Hint</summary><code>Loop page=1 to 5, extend a list with response.json()['data']</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty hard">5</span> Build a user activity report</div><p>For user #1: fetch posts, todos, albums. Build a report dict.</p><details><summary>Hint</summary><code>Make 3 GET requests, count each, build {"post_count": N, ...}</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty hard">6</span> Find all commenters on user #1's posts</div><p>Get first 3 posts by user #1, get comments for each, collect unique emails → <code>15</code></p><details><summary>Hint</summary><code>Nested loop: for each post, get comments, add emails to a set</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty hard">7</span> Map status codes to meanings</div><p>Request 200, 201, 301, 404, 500 from <code>httpbin.org/status</code> and build a dict</p><details><summary>Hint</summary><code>response.reason gives "OK", "Not Found", etc.</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty hard">8</span> Get Tokyo's temperature</div><p>Use Open-Meteo API: <code>latitude=35.6762, longitude=139.6503, current_weather=true</code></p><details><summary>Hint</summary><code>response.json()['current_weather']['temperature']</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty hard">9</span> Batch create 5 posts</div><p>Loop to POST 5 posts, collect all returned IDs in a list</p><details><summary>Hint</summary><code>for i in range(1, 6): ids.append(requests.post(...).json()['id'])</code></details></div>
+            <div class="exercise-card"><div class="exercise-header"><span class="difficulty hard">10</span> Build a search function</div><p>Fetch all posts, filter by keyword in title (case-insensitive)</p><details><summary>Hint</summary><code>[p['title'] for p in posts if keyword.lower() in p['title'].lower()]</code></details></div>
+        </section>
+
+        <!-- HTTP Status Code Reference -->
+        <section id="status-codes" class="lesson" style="display: none;">
+            <div class="lesson-header">
+                <span class="lesson-badge">Reference</span>
+                <h1>HTTP Status Codes</h1>
+            </div>
+            <div class="concept-box">
+                <h3>2xx — Success</h3>
+                <table class="info-table"><tr><td>200</td><td>OK</td></tr><tr><td>201</td><td>Created</td></tr><tr><td>204</td><td>No Content</td></tr></table>
+            </div>
+            <div class="concept-box">
+                <h3>3xx — Redirection</h3>
+                <table class="info-table"><tr><td>301</td><td>Moved Permanently</td></tr><tr><td>302</td><td>Found (Temp Redirect)</td></tr><tr><td>304</td><td>Not Modified</td></tr></table>
+            </div>
+            <div class="concept-box warning">
+                <h3>4xx — Client Errors</h3>
+                <table class="info-table"><tr><td>400</td><td>Bad Request</td></tr><tr><td>401</td><td>Unauthorized</td></tr><tr><td>403</td><td>Forbidden</td></tr><tr><td>404</td><td>Not Found</td></tr><tr><td>429</td><td>Too Many Requests</td></tr></table>
+            </div>
+            <div class="concept-box warning">
+                <h3>5xx — Server Errors</h3>
+                <table class="info-table"><tr><td>500</td><td>Internal Server Error</td></tr><tr><td>502</td><td>Bad Gateway</td></tr><tr><td>503</td><td>Service Unavailable</td></tr><tr><td>504</td><td>Gateway Timeout</td></tr></table>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

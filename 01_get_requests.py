@@ -103,12 +103,32 @@ posts = response.json()  # This is a list like: [{"id": 1, ...}, {"id": 2, ...},
 print(f"Total posts returned: {len(posts)}")
 print()
 
-# posts[:3] is Python slicing — it gives us the first 3 items from the list.
+# WHAT IS SLICING?
+# posts[:3] gives us the first 3 items from the list.
+# The syntax is:  list[start:end]
+#   posts[:3]    →  first 3 items (index 0, 1, 2)
+#   posts[2:5]   →  items at index 2, 3, 4
+#   posts[:10]   →  first 10 items
+#   posts[5:]    →  everything from index 5 onward
+#   posts[-1]    →  the last item
 # Same as: [posts[0], posts[1], posts[2]]
-# We loop through them and print each post's ID and title.
+
+# HOW THE LOOP WORKS:
+# "for post in posts[:3]" runs the indented code 3 times.
+# Each time, 'post' becomes one dictionary from the list:
+#   Loop 1: post = {"id": 1, "title": "sunt aut facere...", "body": "...", "userId": 1}
+#   Loop 2: post = {"id": 2, "title": "qui est esse...",    "body": "...", "userId": 1}
+#   Loop 3: post = {"id": 3, "title": "ea molestias...",    "body": "...", "userId": 1}
 for post in posts[:3]:
-    # post['title'][:50] slices the title string to show only the first 50 characters
+    # post['title'][:50] uses the SAME slicing trick, but on a STRING.
+    # It grabs only the first 50 characters so long titles don't mess up the output.
+    # Example:
+    #   title = "sunt aut facere repellat provident occaecati excepturi optio reprehenderit"
+    #   title[:50] = "sunt aut facere repellat provident occaecati excep"
+    #   Then we add "..." at the end to show it was cut off.
     print(f"  Post #{post['id']}: {post['title'][:50]}...")
+
+# print() with no arguments just prints a BLANK LINE — adds spacing before the next example
 print()
 
 
@@ -126,22 +146,52 @@ print("=" * 50)
 #                                              ^^^^^^^^
 #                                              This is a query parameter!
 #
-# You CAN build the URL manually like above, but it's better to use
-# the params= argument — it handles special characters and formatting for you.
+# Think of it like a search filter:
+#   amazon.com/search?category=books&price_max=20&sort=rating
+#                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#                     These are all query parameters!
+#
+# THE MANUAL WAY (don't do this):
+#   response = requests.get("https://jsonplaceholder.typicode.com/posts?userId=1")
+#   This works, but gets messy and error-prone with multiple params or special characters.
+#
+# THE CLEAN WAY (use params=):
+#   Pass a dictionary — requests builds the URL for you.
+#   It automatically:
+#     1. Adds the '?' for you
+#     2. Joins multiple params with '&'
+#     3. Encodes special characters (spaces, symbols) so they don't break the URL
 
 params = {"userId": 1}  # Only get posts written by user #1
 response = requests.get(
     "https://jsonplaceholder.typicode.com/posts",
     params=params,  # requests adds "?userId=1" to the URL automatically
 )
+
+# MULTIPLE PARAMS EXAMPLE:
+# params = {"userId": 1, "id": 5}
+# This builds: ?userId=1&id=5  (the & separates each parameter)
+#
+# You can pass as many as you need:
+# params = {"category": "books", "price_max": 20, "sort": "rating"}
+# This builds: ?category=books&price_max=20&sort=rating
 filtered_posts = response.json()
 
 print(f"Posts by user 1: {len(filtered_posts)}")
-# response.url shows the full URL that was actually sent — useful for debugging!
+
+# WHAT IS response.url?
+# It shows the FULL URL that requests actually sent to the server.
+# This is useful for DEBUGGING — you can see exactly what was built from your params dict.
+# If something isn't working, printing response.url is one of the first things to check —
+# maybe a param was misspelled or missing.
+#
+# With our params = {"userId": 1}, this will print:
+#   https://jsonplaceholder.typicode.com/posts?userId=1
+#
+# With multiple params like {"userId": 1, "id": 5}, it would show:
+#   https://jsonplaceholder.typicode.com/posts?userId=1&id=5
 print(f"Request URL was: {response.url}")
 
-# You can pass multiple params too:
-# params = {"userId": 1, "id": 5}  →  ?userId=1&id=5  (& separates multiple params)
 print()
 
 
@@ -209,17 +259,70 @@ print()
 # raise_for_status() does nothing if the request succeeded (2xx status),
 # but THROWS an exception if the status code indicates an error (4xx or 5xx).
 # This is cleaner when you have multiple things that could go wrong.
-try:
-    response = requests.get("https://httpstat.us/500")  # This URL always returns 500
-    response.raise_for_status()  # This will raise an HTTPError because status is 500
-except requests.exceptions.HTTPError as e:
-    # This block runs when the server returns an error status code
-    print(f"Caught an HTTP error: {e}")
+#
+# WHAT IS try/except?
+# It's a "safety net" for your code. Normally, when an error happens,
+# Python CRASHES and stops running. try/except catches the error and
+# lets your program recover instead of crashing.
+#
+# HOW IT WORKS:
+#   try:
+#       risky_code()      ← Python tries to run this
+#       more_code()       ← If line above fails, this is SKIPPED
+#   except SomeError:
+#       handle_error()    ← This runs INSTEAD of crashing
+#
+#   next_code()           ← Program continues normally
+#
+# THE FLOW:
+#   If NO error  → runs try block, SKIPS except block
+#   If error     → STOPS try block, JUMPS to matching except block
+#
+# WHY is Method 2 better than Method 1?
+#   Method 1 (if/else) only catches bad status codes (404, 500)
+#   Method 2 (try/except) also catches:
+#     - Server completely down (ConnectionError)
+#     - No internet (ConnectionError)
+#     - Server too slow (Timeout)
+#     - SSL certificate issues (SSLError)
+#   With Method 1, any of those would CRASH your program!
 
-# TIP: You can also catch other types of errors:
-#   requests.exceptions.ConnectionError  →  can't reach the server
-#   requests.exceptions.Timeout          →  server took too long to respond
-#   requests.exceptions.RequestException →  catches ALL request errors
+try:
+    # We request a user that doesn't exist — this returns a 404 error
+    response = requests.get("https://jsonplaceholder.typicode.com/users/99999")
+    response.raise_for_status()  # This will raise an HTTPError because status is 404
+    # ↑ If raise_for_status() throws an error, the next line is SKIPPED
+    #   and Python jumps to the matching except block below
+
+except requests.exceptions.HTTPError as e:
+    # This block runs when the server returns an error status code (4xx or 5xx)
+    # "as e" stores the error details in a variable called 'e'
+    # so you can print it and see exactly what went wrong
+    print(f"Caught an HTTP error: {e}")
+    # Output: "Caught an HTTP error: 404 Client Error: Not Found for url: ..."
+
+# You can catch MULTIPLE types of errors with separate except blocks.
+# Only ONE except block runs — whichever matches the error first.
+# If no error happens, ALL except blocks are skipped.
+#
+# COMMON ERRORS TO CATCH:
+#   requests.exceptions.HTTPError       →  bad status code (404, 500, etc.)
+#   requests.exceptions.ConnectionError →  can't reach the server / no internet
+#   requests.exceptions.Timeout         →  server took too long to respond
+#   requests.exceptions.SSLError        →  SSL certificate problem
+#   requests.exceptions.RequestException →  catches ALL of the above (use as a fallback)
+#
+# EXAMPLE with multiple except blocks:
+#   try:
+#       response = requests.get(url, timeout=5)
+#       response.raise_for_status()
+#       data = response.json()
+#   except requests.exceptions.Timeout:
+#       print("Too slow!")         ← runs if server takes > 5 seconds
+#   except requests.exceptions.HTTPError:
+#       print("Bad status!")       ← runs if 404, 500, etc.
+#   except requests.exceptions.ConnectionError:
+#       print("Can't connect!")    ← runs if server is down / no internet
 
 print()
 print("Lesson 1 complete! Run 02_post_requests.py next.")
